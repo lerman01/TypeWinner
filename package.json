@@ -1,0 +1,34 @@
+{
+  "name": "typewinner",
+  "version": "1.0.0",
+  "main": "backend/main.js",
+  "type": "module",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i src/frontend/styles.css -o src/frontend/tailwind.css",
+    "start": "npm run build:css && npx electron -r tsx src/backend/main.ts",
+    "dev:css": "npx @tailwindcss/cli -i src/frontend/styles.css -o src/frontend/tailwind.css --watch",
+    "dev:main": "nodemon --watch src --ext ts,tsx,js,html,css --exec \"electron -r tsx src/backend/main.ts\"",
+    "dev:preload": "esbuild src/backend/preload.ts --bundle --platform=node --format=cjs --outfile=src/backend/preload.mjs --external:electron --watch",
+    "dev": "concurrently \"npm:dev:main\" \"npm:dev:preload\" \"npm:dev:css\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "@types/node": "^25.0.3",
+    "autoprefixer": "^10.4.23",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "nodemon": "^3.1.11",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "env-paths": "^3.0.0",
+    "groq-sdk": "^0.37.0",
+    "puppeteer-core": "^24.34.0"
+  }
+}

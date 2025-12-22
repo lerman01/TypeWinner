@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TypeWinner</title>
+    <link rel="stylesheet" type="text/css" href="tailwind.css">
+    <script src="js/main.js"></script>
+    <script src="js/speed-slider.js"></script>
+    <script src="js/error-slider.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+</head>
+<body class="px-4 pb-4">
+<div class="flex items-center gap-2 drag-region pt-4">
+    <img class="w-8" src="icon.png" alt="icon"/>
+    <div class="text-2xl font-bold">TypeWinner</div>
+    <div class="ml-auto">
+        <button class="bg-white text-[#005894] rounded-full size-6 font-black cursor-pointer mx-auto"
+                onclick="window.api.quit()">X
+        </button>
+    </div>
+</div>
+
+<div class="flex pt-6 gap-4">
+    <button id="browser-btn"
+            class="shadow-lg cursor-pointer font-bold px-4 rounded-lg bg-[#4caf50] disabled:bg-[#E0E0E0] disabled:text-[#9E9E9E] disabled:cursor-default"
+            onclick="openBrowserOnClick()">Open Browser
+    </button>
+
+
+    <div class="flex flex-col gap-4 w-full">
+        <!-- Speed Range -->
+        <div class="bg-white p-2 rounded-lg shadow-lg">
+            <h2 class="font-bold text-black">Type Speed</h2>
+            <div class="relative mt-4 slider-container">
+                <input type="range" id="maxRange" min="0" max="400" value="380">
+                <input type="range" id="minRange" min="0" max="400" value="375">
+                <div class="relative w-full h-2 bg-gray-200 rounded-md">
+                    <div id="rangeTrack"
+                         class="absolute h-2 bg-gradient-to-r from-blue-900 to-blue-400 rounded-md"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between text-gray-600 text-sm">
+                <span>Min Speed: <span id="minValue">0</span></span>
+                <span>Max Speed: <span id="maxValue">400</span></span>
+            </div>
+        </div>
+
+        <!-- Error Rate -->
+        <div class="bg-white p-2 rounded-lg shadow-lg">
+            <h2 class="font-bold text-black">Error Rate</h2>
+
+            <div class="relative mt-4 slider-container">
+                <input type="range" id="errRateInput" min="0" max="100" value="10">
+                <div class="relative w-full h-2 bg-gray-200 rounded-md">
+                    <div id="errTrack" class="absolute h-2 bg-gradient-to-r from-blue-900 to-blue-400 rounded-md"
+                         style="left: 0"></div>
+                </div>
+            </div>
+            <div class="flex justify-between text-gray-600 text-sm">
+                <span>Error Rate: <span id="errRate">0</span>%</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="flex items-center my-2 font-bold">
+    <div class="flex-grow border-t border-dashed border-gray-300"></div>
+    <span class="mx-4 text-sm">Solve Challenge Feature</span>
+    <div class="flex-grow border-t border-dashed border-gray-300"></div>
+</div>
+
+<div>
+    <div class="pb-2">
+        To enable challenge solver enter your Grok API key here:<br/>
+        <span class="text-sm">(Don’t have one?
+        <a class="text-blue-300 underline" id="grok-link" href="https://www.google.co.il">Create one here</a>
+            — <span class="font-semibold">it’s FREE</span></span>)
+    </div>
+
+</div>
+<div class="flex gap-4">
+    <input id='apiKeyInput' type="password" class="w-full bg-white outline-none rounded-lg text-black">
+
+    <button
+            id="apiKeyBtn"
+            disabled
+            class="shadow-lg cursor-pointer font-bold px-4 rounded-lg bg-[#4caf50] disabled:bg-[#E0E0E0] disabled:text-[#9E9E9E] disabled:cursor-default"
+            onclick="saveApiKey()"
+    >Save
+    </button>
+</div>
+</div>
+
+</body>
+</html>
