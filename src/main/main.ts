@@ -26,6 +26,7 @@ function createWindow() {
     title: 'TypeWinner',
     icon: getAssetPath('icon.png'),
     resizable: false,
+    alwaysOnTop: true,
     autoHideMenuBar: true,
     frame: false, // removes OS title bar and borders
     transparent: false,
