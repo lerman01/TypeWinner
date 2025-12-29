@@ -174,8 +174,8 @@
   }
 }
 @layer utilities {
-  .static {
-    position: static;
+  .isolate {
+    isolation: isolate;
   }
   .container {
     width: 100%;
@@ -207,8 +207,8 @@
   .ml-auto {
     margin-left: auto;
   }
-  .contents {
-    display: contents;
+  .block {
+    display: block;
   }
   .flex {
     display: flex;
@@ -225,6 +225,9 @@
   }
   .w-full {
     width: 100%;
+  }
+  .flex-1 {
+    flex: 1;
   }
   .flex-grow {
     flex-grow: 1;
@@ -350,17 +353,41 @@
     }
   }
 }
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: default !important;
+}
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: auto;
+}
 body {
   user-select: none;
+  -webkit-user-select: none;
   font-family: Lato, sans-serif;
   background-color: #005894;
   color: white;
+  pointer-events: auto;
+  cursor: default;
 }
-.drag-region {
-  -webkit-app-region: drag;
+[data-tauri-drag-region] {
+  cursor: move !important;
 }
-button, input, .slider-container {
-  -webkit-app-region: no-drag;
+button, .slider-container, a, [role="button"] {
+  cursor: pointer !important;
+}
+input[type="text"], input[type="password"], input[type="email"], input[type="search"], textarea {
+  cursor: text !important;
+}
+div, span, p, h1, h2, h3, h4, h5, h6 {
+  cursor: default !important;
 }
 input[type="range"] {
   -webkit-appearance: none;

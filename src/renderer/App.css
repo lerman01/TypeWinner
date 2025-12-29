@@ -1,20 +1,55 @@
 @import "tailwindcss";
 
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: default !important; /* Default cursor, not text cursor */
+}
+
+/* Prevent image dragging */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: auto;
+}
+
 body {
   user-select: none;
+  -webkit-user-select: none;
   font-family: Lato, sans-serif;
   background-color: #005894; /* optional styling */
   color: white;
+  pointer-events: auto;
+  cursor: default;
 }
 
-/* index.html or your CSS file */
-.drag-region {
-  -webkit-app-region: drag; /* makes this area draggable */
+/* Drag region for window dragging - Tauri v2 uses data-tauri-drag-region attribute */
+[data-tauri-drag-region] {
+  cursor: move !important;
 }
 
-/* Non-draggable elements inside draggable area */
-button, input, .slider-container {
-  -webkit-app-region: no-drag; /* prevents button from dragging the window */
+/* Buttons and interactive elements */
+button, .slider-container, a, [role="button"] {
+  cursor: pointer !important;
+}
+
+/* Input elements should show text cursor */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+textarea {
+  cursor: text !important;
+}
+
+/* Text elements should not show text cursor */
+div, span, p, h1, h2, h3, h4, h5, h6 {
+  cursor: default !important;
 }
 
 input[type="range"] {

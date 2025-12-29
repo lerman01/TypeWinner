@@ -2,8 +2,12 @@ import { MemoryRouter as Router, Route, Routes } from 'react-router-dom';
 import './tailwind.css';
 import { useEffect, useState } from 'react';
 import Slider from 'rc-slider';
-import icon from '../../assets/icon.png';
+import icon from '/icon.png';
 import 'rc-slider/assets/index.css';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+// Tauri drag regions work via CSS -webkit-app-region, no API needed
 
 function TypeWinner() {
   const [isBrowserOpen, setIsBrowserOpen] = useState(false);
@@ -13,38 +17,133 @@ function TypeWinner() {
   const [errRate, setErrRate] = useState<number>(10);
 
   useEffect(() => {
-    window.api.enableBrowser(() => {
-      setIsBrowserOpen(false);
-    });
+    let unlistenFn: (() => void) | undefined;
+    let unlistenBrowserOpening: (() => void) | undefined;
+    let unlistenCloseRequested: (() => void) | undefined;
+
+    const setupListeners = async () => {
+      try {
+        const unlisten = await listen('enableBrowser', (event) => {
+          console.log('enableBrowser event received', event);
+          setIsBrowserOpen(false);
+        });
+        unlistenFn = unlisten;
+        
+        const unlistenOpening = await listen('browser-opening', (event) => {
+          console.log('browser-opening event received', event);
+          setIsBrowserOpen(true);
+        });
+        unlistenBrowserOpening = unlistenOpening;
+        
+        // Listen for close requested to ensure cleanup
+        const appWindow = getCurrentWindow();
+        const unlistenClose = await appWindow.onCloseRequested(async () => {
+          // Call quit command to ensure puppeteer is killed
+          try {
+            await invoke('quit');
+          } catch (error) {
+            console.error('Failed to quit:', error);
+            // Force close even if quit fails
+            appWindow.close();
+          }
+        });
+        unlistenCloseRequested = unlistenClose;
+        
+        console.log('Event listeners set up successfully');
+      } catch (error) {
+        console.error('Failed to setup listeners:', error);
+        // Try to set up listener again after a delay
+        setTimeout(() => {
+          setupListeners();
+        }, 1000);
+      }
+    };
+
+    setupListeners();
 
     (async () => {
-      const cachedApiKey = await window.api.getApiKey();
-      if (cachedApiKey) {
-        setApiKey(cachedApiKey);
+      try {
+        const cachedApiKey = await invoke<string | null>('get_api_key');
+        if (cachedApiKey) {
+          setApiKey(cachedApiKey);
+        }
+      } catch (error) {
+        console.error('Failed to get API key:', error);
       }
     })();
+
+    // Block context menu (right-click)
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // Block text selection
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault();
+      return false;
+    };
+    document.addEventListener('selectstart', handleSelectStart);
+
+    // Block image dragging
+    const handleDragStart = (e: DragEvent) => {
+      if (e.target instanceof HTMLImageElement) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    document.addEventListener('dragstart', handleDragStart);
+
+    // Drag region is handled via CSS -webkit-app-region in App.css
+
+    return () => {
+      if (unlistenFn) {
+        unlistenFn();
+      }
+      if (unlistenBrowserOpening) {
+        unlistenBrowserOpening();
+      }
+      if (unlistenCloseRequested) {
+        unlistenCloseRequested();
+      }
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('dragstart', handleDragStart);
+    };
   }, []);
 
   useEffect(() => {
-    window.api
-      .updateTypeSpeed({ min: speedRange[0], max: speedRange[1] })
+    invoke('update_type_speed', { args: { min: speedRange[0], max: speedRange[1] } })
       .catch(() => {});
   }, [speedRange]);
 
   useEffect(() => {
-    window.api.updateErrRate(errRate).catch(() => {});
+    invoke('update_err_rate', { errRate })
+      .catch(() => {});
   }, [errRate]);
 
   return (
     <div className="px-4 pb-4">
-      <div className="flex items-center gap-2 drag-region pt-4">
-        <img className="w-8" src={icon} alt="icon" />
-        <div className="text-2xl font-bold">TypeWinner</div>
+      <div className="flex items-center gap-2 pt-4">
+        <img className="w-8" src={icon} alt="icon" draggable="false" />
+        <div className="text-2xl font-bold flex-1" data-tauri-drag-region>
+          TypeWinner
+        </div>
         <div className="ml-auto">
           <button
             type="button"
             className="bg-white text-[#005894] rounded-full size-6 font-black cursor-pointer mx-auto"
-            onClick={window.api.quit}
+            onClick={async () => {
+              try {
+                await invoke('quit');
+              } catch (error) {
+                console.error('Failed to quit:', error);
+                // Fallback: try to close window directly
+                const appWindow = getCurrentWindow();
+                appWindow.close().catch(() => {});
+              }
+            }}
           >
             X
           </button>
@@ -56,9 +155,13 @@ function TypeWinner() {
           type="button"
           disabled={isBrowserOpen}
           className="shadow-lg cursor-pointer font-bold px-4 rounded-lg bg-[#4caf50] disabled:bg-[#E0E0E0] disabled:text-[#9E9E9E] disabled:cursor-default"
-          onClick={() => {
-            window.api.openBrowser().catch(() => {});
-            setIsBrowserOpen(true);
+          onClick={async () => {
+            try {
+              await invoke('open_browser');
+              // Button will be disabled when browser-opening event is received
+            } catch (error) {
+              console.error('Failed to open browser:', error);
+            }
           }}
         >
           Open Browser
@@ -146,11 +249,10 @@ function TypeWinner() {
             (Don’t have one?&nbsp;
             <a
               className="text-blue-300 underline"
-              href="https://www.google.co.il"
+              href="https://console.groq.com/"
               onClick={(e) => {
                 e.preventDefault();
-                window.api
-                  .openExternal('https://console.groq.com/')
+                invoke('open_external', { url: 'https://console.groq.com/' })
                   .catch(() => {});
               }}
             >
@@ -177,7 +279,7 @@ function TypeWinner() {
           disabled={isSaveDisabled}
           className="shadow-lg cursor-pointer font-bold px-4 rounded-lg bg-[#4caf50] disabled:bg-[#E0E0E0] disabled:text-[#9E9E9E] disabled:cursor-default"
           onClick={() => {
-            window.api.saveApiKey(apiKey).catch(() => {});
+            invoke('save_api_key', { apiKey }).catch(() => {});
             setIsSaveDisabled(true);
           }}
         >
