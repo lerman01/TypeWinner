@@ -149,9 +149,7 @@ Thumbs.db
 *~
 
 # Build outputs
-release/
 dist/
-.erb/
 
 #Cursor
 .history

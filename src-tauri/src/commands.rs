@@ -119,24 +119,24 @@ pub async fn open_browser(
             ];
             
             // On macOS, resources are in the app bundle
-            // Tauri preserves the relative path structure, so "../src/main/utils/puppeteer-node.cjs"
-            // becomes "_up_/src/main/utils/puppeteer-node.cjs" in Resources
+            // Tauri preserves the relative path structure, so "resources/puppeteer-node.cjs"
+            // becomes "resources/puppeteer-node.cjs" in Resources
             #[cfg(target_os = "macos")]
             {
-                // Try the Resources directory with the preserved path structure
+                // Try the Resources directory
                 if let Some(resources_dir) = exe_dir.parent()
                     .and_then(|p| p.parent())
                     .and_then(|p| p.parent())
                     .map(|p| p.join("Resources")) {
                     possible_resource_paths.push(resources_dir.join("puppeteer-node.cjs"));
-                    possible_resource_paths.push(resources_dir.join("_up_").join("src").join("main").join("utils").join("puppeteer-node.cjs"));
+                    possible_resource_paths.push(resources_dir.join("resources").join("puppeteer-node.cjs"));
                 }
             }
             
             // On Windows/Linux, resources might be in a resources subdirectory
             #[cfg(not(target_os = "macos"))]
             {
-                possible_resource_paths.push(exe_dir.join("resources").join("_up_").join("src").join("main").join("utils").join("puppeteer-node.cjs"));
+                possible_resource_paths.push(exe_dir.join("resources").join("puppeteer-node.cjs"));
             }
             
             println!("Checking resource paths:");
@@ -158,10 +158,10 @@ pub async fn open_browser(
             let current_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
             println!("Current working directory: {:?}", current_dir);
             let possible_paths = vec![
-                current_dir.join("src").join("main").join("utils").join("puppeteer-node.cjs"),
-                current_dir.join("..").join("src").join("main").join("utils").join("puppeteer-node.cjs"),
-                PathBuf::from("src").join("main").join("utils").join("puppeteer-node.cjs"),
-                PathBuf::from("../src").join("main").join("utils").join("puppeteer-node.cjs"),
+                current_dir.join("src-tauri").join("resources").join("puppeteer-node.cjs"),
+                current_dir.join("..").join("src-tauri").join("resources").join("puppeteer-node.cjs"),
+                PathBuf::from("src-tauri").join("resources").join("puppeteer-node.cjs"),
+                PathBuf::from("../src-tauri").join("resources").join("puppeteer-node.cjs"),
             ];
             println!("Checking dev paths:");
             for path in &possible_paths {

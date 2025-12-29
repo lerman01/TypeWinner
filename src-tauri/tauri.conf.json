@@ -36,7 +36,7 @@
     "active": true,
     "targets": "all",
     "resources": [
-      "../src/main/utils/puppeteer-node.cjs"
+      "resources/puppeteer-node.cjs"
     ],
     "icon": [
       "icons/32x32.png",

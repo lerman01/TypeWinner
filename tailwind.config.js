@@ -1,9 +1,10 @@
 export default {
   content: [
-    './src/renderer/**/*.html',
-    './src/renderer/**/*.js',
-    './src/renderer/**/*.ts',
-    './src/renderer/**/*.tsx',
+    './index.html',
+    './src/**/*.html',
+    './src/**/*.js',
+    './src/**/*.ts',
+    './src/**/*.tsx',
   ],
   theme: {
     extend: {},

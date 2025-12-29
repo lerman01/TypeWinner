@@ -10,7 +10,7 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:portable": "tauri build app",
-    "start:css": "npx @tailwindcss/cli -i src/renderer/App.css -o src/renderer/tailwind.css --watch",
+    "start:css": "npx @tailwindcss/cli -i src/App.css -o src/tailwind.css --watch",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "test": "jest"
@@ -37,7 +37,6 @@
   "jest": {
     "moduleDirectories": [
       "node_modules",
-      "release/app/node_modules",
       "src"
     ],
     "moduleFileExtensions": [
@@ -48,19 +47,16 @@
       "json"
     ],
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
-    "setupFiles": [
-      "./.erb/scripts/check-build-exists.ts"
-    ],
     "testEnvironment": "jsdom",
     "testEnvironmentOptions": {
       "url": "http://localhost/"
     },
     "testPathIgnorePatterns": [
-      "release/app/dist",
-      ".erb/dll"
+      "dist",
+      "src-tauri/target"
     ],
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
